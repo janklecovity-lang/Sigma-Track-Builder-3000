@@ -10,8 +10,6 @@ body{
 #grid{
     margin:20px auto;
     display:grid;
-    grid-template-columns: repeat(20,30px);
-    width:600px;
 }
 
 .tile{
