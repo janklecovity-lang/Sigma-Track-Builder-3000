@@ -1,5 +1,6 @@
 <!DOCTYPE html>
 <html lang="cs">
+
 <head>
 <meta charset="UTF-8">
 <title>Car Track Builder</title>
@@ -7,13 +8,13 @@
 </head>
 
 <body>
-<h1>Ahoj</h1>
+
 <div id="menu">
-   <div id="menu">
 
 <h1>Car Track Builder</h1>
 
 <label>Velikost mapy:</label>
+
 <select id="mapSize">
 <option value="10">10 x 10</option>
 <option value="20" selected>20 x 20</option>
@@ -26,18 +27,32 @@
 <button id="loadMap">Načíst mapu</button>
 
 </div>
-</div>
+
 
 <div id="editor" class="hidden">
 
-    <h2>Editor tratě</h2>
+<h2>Editor tratě</h2>
 
-    <div class="controls">
-        <button id="backMenu">Zpět do menu</button>
-        <button id="saveMap">Uložit mapu</button>
-    </div>
+<div class="controls">
+<button id="backMenu">Zpět do menu</button>
+<button id="saveMap">Uložit mapu</button>
+</div>
 
-    <div id="grid"></div>
+
+<div class="tools">
+
+<b>Nástroj:</b>
+
+<button data-tool="0"> Tráva</button>
+<button data-tool="1"> Rovná</button>
+<button data-tool="2"> Zatáčka</button>
+<button data-tool="3"> Křižovatka</button>
+<button data-tool="4"> Voda</button>
+
+</div>
+
+
+<div id="grid"></div>
 
 </div>
 
