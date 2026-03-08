@@ -13,16 +13,18 @@ const sizeSelect = document.getElementById("mapSize");
 
 let map = [];
 
+let isPainting = false;
+
 
 function createEmptyMap(){
 
     map = [];
 
-    for(let y=0; y<size; y++){
+    for(let y=0;y<size;y++){
 
-        let row = [];
+        let row=[];
 
-        for(let x=0; x<size; x++){
+        for(let x=0;x<size;x++){
             row.push(0);
         }
 
@@ -31,61 +33,83 @@ function createEmptyMap(){
 }
 
 
+function updateTileColor(tile,type){
+
+    tile.classList.remove("grass","road","water");
+
+    if(type===0) tile.classList.add("grass");
+    if(type===1) tile.classList.add("road");
+    if(type===2) tile.classList.add("water");
+
+}
+
+
+function changeTile(x,y,tile){
+
+    map[y][x]++;
+
+    if(map[y][x] > 2){
+        map[y][x] = 0;
+    }
+
+    updateTileColor(tile,map[y][x]);
+
+}
+
+
 function drawGrid(){
 
-    grid.innerHTML = "";
+    grid.innerHTML="";
 
     grid.style.gridTemplateColumns = `repeat(${size}, 30px)`;
-    grid.style.width = `${size * 30}px`;
+    grid.style.width = `${size*30}px`;
 
-    for(let y=0; y<size; y++){
+    for(let y=0;y<size;y++){
 
-        for(let x=0; x<size; x++){
+        for(let x=0;x<size;x++){
 
-            const tile = document.createElement("div");
+            const tile=document.createElement("div");
             tile.classList.add("tile");
 
-            updateTileColor(tile, map[y][x]);
+            updateTileColor(tile,map[y][x]);
 
-            tile.addEventListener("click", function(){
 
-                map[y][x]++;
+            tile.addEventListener("mousedown",function(){
 
-                if(map[y][x] > 2){
-                    map[y][x] = 0;
-                }
+                isPainting = true;
 
-                updateTileColor(tile, map[y][x]);
+                changeTile(x,y,tile);
 
             });
+
+
+            tile.addEventListener("mouseover",function(){
+
+                if(isPainting){
+
+                    changeTile(x,y,tile);
+
+                }
+
+            });
+
 
             grid.appendChild(tile);
 
         }
     }
-}
-
-
-function updateTileColor(tile, type){
-
-    tile.classList.remove("grass","road","water");
-
-    if(type === 0){
-        tile.classList.add("grass");
-    }
-
-    if(type === 1){
-        tile.classList.add("road");
-    }
-
-    if(type === 2){
-        tile.classList.add("water");
-    }
 
 }
 
 
-newBtn.onclick = function(){
+document.addEventListener("mouseup",function(){
+
+    isPainting = false;
+
+});
+
+
+newBtn.onclick=function(){
 
     size = parseInt(sizeSelect.value);
 
@@ -99,7 +123,7 @@ newBtn.onclick = function(){
 }
 
 
-backBtn.onclick = function(){
+backBtn.onclick=function(){
 
     editor.classList.add("hidden");
     menu.classList.remove("hidden");
@@ -107,30 +131,30 @@ backBtn.onclick = function(){
 }
 
 
-saveBtn.onclick = function(){
+saveBtn.onclick=function(){
 
     const data = {
-        size: size,
-        map: map
+        size:size,
+        map:map
     };
 
-    localStorage.setItem("map", JSON.stringify(data));
+    localStorage.setItem("map",JSON.stringify(data));
 
     alert("Mapa uložena");
 
 }
 
 
-loadBtn.onclick = function(){
+loadBtn.onclick=function(){
 
-    const data = localStorage.getItem("map");
+    const data=localStorage.getItem("map");
 
     if(!data){
         alert("Žádná uložená mapa");
         return;
     }
 
-    const parsed = JSON.parse(data);
+    const parsed=JSON.parse(data);
 
     size = parsed.size;
     map = parsed.map;
