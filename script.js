@@ -1,4 +1,4 @@
-const size = 20;
+let size = 20;
 
 const menu = document.getElementById("menu");
 const editor = document.getElementById("editor");
@@ -9,108 +9,218 @@ const loadBtn = document.getElementById("loadMap");
 const saveBtn = document.getElementById("saveMap");
 const backBtn = document.getElementById("backMenu");
 
+const sizeSelect = document.getElementById("mapSize");
+
+const toolButtons = document.querySelectorAll(".tools button");
+
+let currentTool = 1;
+
 let map = [];
+let history = [];
+
+let isPainting = false;
+
+
+
+toolButtons.forEach(btn => {
+
+btn.onclick = function(){
+
+toolButtons.forEach(b => b.classList.remove("active"));
+
+btn.classList.add("active");
+
+currentTool = parseInt(btn.dataset.tool);
+
+}
+
+});
+
+
 
 function createEmptyMap(){
-    map = [];
 
-    for(let y=0;y<size;y++){
-        let row=[];
+map=[];
 
-        for(let x=0;x<size;x++){
-            row.push(0);
-        }
+for(let y=0;y<size;y++){
 
-        map.push(row);
-    }
+let row=[];
+
+for(let x=0;x<size;x++){
+
+row.push(0);
+
 }
 
-function drawGrid(){
+map.push(row);
 
-    grid.innerHTML="";
-
-    for(let y=0;y<size;y++){
-
-        for(let x=0;x<size;x++){
-
-            const tile=document.createElement("div");
-            tile.classList.add("tile");
-
-            updateTileColor(tile,map[y][x]);
-
-            tile.addEventListener("click",function(){
-
-                map[y][x]++;
-
-                if(map[y][x]>2){
-                    map[y][x]=0;
-                }
-
-                updateTileColor(tile,map[y][x]);
-
-            });
-
-            grid.appendChild(tile);
-        }
-    }
 }
+
+}
+
+
 
 function updateTileColor(tile,type){
 
-    tile.classList.remove("grass","road","water");
+tile.classList.remove("grass","road","corner","cross","water");
 
-    if(type===0){
-        tile.classList.add("grass");
-    }
-
-    if(type===1){
-        tile.classList.add("road");
-    }
-
-    if(type===2){
-        tile.classList.add("water");
-    }
+if(type===0) tile.classList.add("grass");
+if(type===1) tile.classList.add("road");
+if(type===2) tile.classList.add("corner");
+if(type===3) tile.classList.add("cross");
+if(type===4) tile.classList.add("water");
 
 }
+
+
+
+function addHistory(x,y,type){
+
+const record={
+x:x,
+y:y,
+type:type,
+date:new Date().toLocaleString()
+};
+
+history.push(record);
+
+console.log("Změna:",record);
+
+}
+
+
+
+function changeTile(x,y,tile){
+
+map[y][x]=currentTool;
+
+updateTileColor(tile,currentTool);
+
+addHistory(x,y,currentTool);
+
+}
+
+
+
+function drawGrid(){
+
+grid.innerHTML="";
+
+grid.style.gridTemplateColumns=`repeat(${size},30px)`;
+grid.style.width=`${size*30}px`;
+
+
+for(let y=0;y<size;y++){
+
+for(let x=0;x<size;x++){
+
+const tile=document.createElement("div");
+
+tile.classList.add("tile");
+
+updateTileColor(tile,map[y][x]);
+
+
+tile.addEventListener("mousedown",function(){
+
+isPainting=true;
+
+changeTile(x,y,tile);
+
+});
+
+
+tile.addEventListener("mouseover",function(){
+
+if(isPainting){
+
+changeTile(x,y,tile);
+
+}
+
+});
+
+
+grid.appendChild(tile);
+
+}
+
+}
+
+}
+
+
+
+document.addEventListener("mouseup",function(){
+
+isPainting=false;
+
+});
+
+
 
 newBtn.onclick=function(){
 
-    createEmptyMap();
+size=parseInt(sizeSelect.value);
 
-    menu.classList.add("hidden");
-    editor.classList.remove("hidden");
+createEmptyMap();
 
-    drawGrid();
+menu.classList.add("hidden");
+editor.classList.remove("hidden");
+
+drawGrid();
+
 }
+
+
 
 backBtn.onclick=function(){
 
-    editor.classList.add("hidden");
-    menu.classList.remove("hidden");
+editor.classList.add("hidden");
+menu.classList.remove("hidden");
 
 }
+
+
 
 saveBtn.onclick=function(){
 
-    localStorage.setItem("map",JSON.stringify(map));
-    alert("Mapa uložena");
+const data={
+size:size,
+map:map,
+history:history
+};
+
+localStorage.setItem("map",JSON.stringify(data));
+
+alert("Mapa uložena");
 
 }
 
+
+
 loadBtn.onclick=function(){
 
-    const data=localStorage.getItem("map");
+const data=localStorage.getItem("map");
 
-    if(!data){
-        alert("Žádná uložená mapa");
-        return;
-    }
+if(!data){
 
-    map=JSON.parse(data);
+alert("Žádná uložená mapa");
 
-    menu.classList.add("hidden");
-    editor.classList.remove("hidden");
+return;
 
-    drawGrid();
+}
+
+const parsed=JSON.parse(data);
+
+size=parsed.size;
+map=parsed.map;
+history=parsed.history || [];
+
+menu.classList.add("hidden");
+editor.classList.remove("hidden");
+
+drawGrid();
 
 }
